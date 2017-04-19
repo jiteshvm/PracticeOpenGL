@@ -1,3 +1,7 @@
 Debug/
 *.opendb
 *.db
+*.tlog
+*.iobj
+*.ipch
+*.ipdb
