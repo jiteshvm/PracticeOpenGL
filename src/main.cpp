@@ -9,6 +9,11 @@
 #include <iostream>
 #include "shader.h"
 
+//glm
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 using namespace std;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -74,6 +79,15 @@ int main()
 		1, 2, 3    // Second Triangle
 	};
 
+	//glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+	//glm::mat4 trans;
+	//trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
+	
+	//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	//trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
+	//vec = trans * vec;
+	//std::cout << vec.x << vec.y << vec.z << std::endl;
+
 	GLuint VBO, VAO, EBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -114,7 +128,19 @@ int main()
 		//render commands
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+		
+		// use program
 		ourShader.Use();
+
+		// Create transformations
+		glm::mat4 transform;
+		transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+		transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 50.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+
+		// Get matrix's uniform location and set matrix
+		GLint transformLoc = glGetUniformLocation(ourShader.Program, "transform");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+
 		glBindVertexArray(VAO);
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
