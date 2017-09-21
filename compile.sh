@@ -1,2 +1,2 @@
 #g++ main.cpp -I/usr/local/include -I/opt/X11/include -L/usr/local/lib -L/usr/X11/lib -framework OpenGL -lglfw3 -lglew -X11
-g++ -g "src/main.cpp" "src/glad.c" -I/usr/local/include -Iinclude/ -L/usr/local/lib -framework OpenGL -lglfw
+g++ -g "src/main.cpp" "src/glad.c" -o PracticeOpenGL.out -I/usr/local/include -Iinclude/ -L/usr/local/lib -framework OpenGL -lglfw

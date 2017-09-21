@@ -16,7 +16,7 @@
                 "name": "(lldb) Launch",
                 "type": "cppdbg",
                 "request": "launch",
-                "program": "${workspaceRoot}/a.out",
+                "program": "${workspaceRoot}/PracticeOpenGL.out",
                 "args": [],
                 "stopAtEntry": false,
                 "cwd": "${workspaceRoot}",
