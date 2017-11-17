@@ -45,6 +45,9 @@ int main()
 	std::cout << "OpenGL version : " << version << std::endl;
 
 	Shader ourShader("./shaders/basic.vs", "./shaders/basic.frag");
+	int vertexColorLocation = glGetUniformLocation(ourShader.ID, "uniformColor");
+	ourShader.use();
+	glUniform4f(vertexColorLocation, 0.0f, 1.0, 0.0f, 1.0f);
 
 	float vertices[] = {
 		// positions         // colors
@@ -94,6 +97,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		ourShader.use();
+
 		glBindVertexArray(VAO);
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
