@@ -2,8 +2,12 @@
 #include <GLFW/glfw3.h>
 
 #include "shader.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 
 #include <iostream>
+
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -44,17 +48,41 @@ int main()
 	std::cout << "Renderer : " << renderer << std::endl;
 	std::cout << "OpenGL version : " << version << std::endl;
 
-	Shader ourShader("./shaders/basic.vs", "./shaders/basic.frag");
-	int vertexColorLocation = glGetUniformLocation(ourShader.ID, "uniformColor");
-	ourShader.use();
-	glUniform4f(vertexColorLocation, 0.0f, 1.0, 0.0f, 1.0f);
+	int tex_width;
+	int tex_height;
+	int nrchannels;
+	
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
+	unsigned char* texture_data = stbi_load("container.jpg", &tex_width, &tex_height, &nrchannels, 0);
+
+	if (texture_data) 
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture_data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else 
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(texture_data);
+
+	Shader ourShader("./shaders/basic.vs", "./shaders/basic.frag");
+	ourShader.use();
+	int vertexColorLocation = glGetUniformLocation(ourShader.ID, "uniformColor");
+	int textureLocation = glGetUniformLocation(ourShader.ID, "texture2");
+	glUniform4f(vertexColorLocation, 0.0f, 1.0, 0.0f, 1.0f);
+	glUniform1i(textureLocation, 1);
+	
 	float vertices[] = {
 		// positions         // colors
-		0.5f , -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // bottom right
-		-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // bottom left
-		-0.5f, 0.5f , 0.0f,  0.0f, 0.0f, 1.0f,  // top left
-		0.5f , 0.5f , 0.0f,  1.0f, 1.0f, 1.0f   // top right
+		0.5f , -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 0.0f,  // bottom right
+		-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,  // bottom left
+		-0.5f, 0.5f , 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f,  // top left
+		0.5f , 0.5f , 0.0f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f  // top right
 	};
 
 	unsigned int indices[] = {
@@ -78,11 +106,14 @@ int main()
 	
 
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	// color attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	// texture coordinates
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 
 	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
 	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
@@ -99,6 +130,7 @@ int main()
 		ourShader.use();
 
 		glBindVertexArray(VAO);
+		glBindTexture(GL_TEXTURE_2D, texture);
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
