@@ -16,13 +16,14 @@
                 "name": "(lldb) Launch",
                 "type": "cppdbg",
                 "request": "launch",
-                "program": "${workspaceRoot}/PracticeOpenGL.out",
+                "program": "${workspaceRoot}/bin/${workspaceFolderBasename}",
                 "args": [],
                 "stopAtEntry": false,
                 "cwd": "${workspaceRoot}",
                 "environment": [],
-                "externalConsole": true,
-                "MIMode": "lldb"
+                "externalConsole": false,
+                "MIMode": "lldb",
+                "preLaunchTask": "make",
             }
         ]
     }

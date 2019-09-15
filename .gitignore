@@ -8,3 +8,7 @@ Debug/
 *.ipdb
 Release/
 !lib/Release/
+PracticeOpenGL.out.dSYM
+PracticeOpenGL.out
+*.o
+bin/PracticeOpenGL

@@ -4,19 +4,26 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "taskName": "compile",
+            "label": "make",
             "type": "shell",
-            "command": "./compile.sh",
-            "windows": {
-                "command": ".\\compile.cmd"
-            },
+            "command": "make",
+            "args": [],
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
             "presentation": {
-                "reveal": "always",
-                "panel": "shared"
+                "reveal": "always"
+            }
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "make clean",
+            "args": [],
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
             }
         }
     ]
