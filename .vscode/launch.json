@@ -24,6 +24,10 @@
                 "externalConsole": false,
                 "MIMode": "lldb",
                 "preLaunchTask": "make",
+                "logging": {
+                    "moduleLoad": false,
+                    "trace": false
+                }
             }
         ]
     }

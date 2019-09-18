@@ -13,5 +13,5 @@ void main()
     //FragColor = vertexColor;
     //FragColor = uniformColor;
     //FragColor = vec4(vertexPosition, 1.0);
-    FragColor = texture(texture2, TexCoord) * vec4(vertexPosition, 1.0);
+    FragColor = texture(texture2, TexCoord);
 } 

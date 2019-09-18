@@ -3,6 +3,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
 Shader* ourShader;
@@ -15,6 +19,19 @@ void update();
 
 int main()
 {
+	// // this is the vector that we want to translate
+	// glm::vec4 vectest(1.0f, 0.0f, 0.0f, 1.0f);
+	// // just an identity matrix
+	// glm::mat4 ident = glm::mat4(1.0f);
+	// // this is our actual transformation matrix
+	// glm::mat4 trans = glm::translate(ident, glm::vec3(1.0f, 1.0f, 0.0f));
+	// vectest = trans * vectest;
+	// std::cout << vectest.x << vectest.y << vectest.z << std::endl;
+
+	glm::mat4 trans = glm::mat4(1.0f);
+	trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+	//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	//trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
 	initWindow(800, 600);
 	int tex_width;
 	int tex_height;
@@ -40,11 +57,14 @@ int main()
 
 	ourShader = new Shader("./shaders/basic.vs", "./shaders/basic.frag");
 	ourShader->use();
-	int vertexColorLocation = glGetUniformLocation(ourShader->ID, "uniformColor");
-	int textureLocation = glGetUniformLocation(ourShader->ID, "texture2");
-	glUniform4f(vertexColorLocation, 0.0f, 1.0, 0.0f, 1.0f);
-	glUniform1i(textureLocation, 1);
 	
+	int vertexColorLocation = glGetUniformLocation(ourShader->ID, "uniformColor");
+	glUniform4f(vertexColorLocation, 0.0f, 1.0, 0.0f, 1.0f);
+	int textureLocation = glGetUniformLocation(ourShader->ID, "texture2");
+	glUniform1i(textureLocation, 1);
+	unsigned int transformLoc = glGetUniformLocation(ourShader->ID, "transform");
+	glUniformMatrix4fv(transformLoc, 1, false, glm::value_ptr(trans));
+
 	float vertices[] = {
 		// positions         // colors
 		0.5f , -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 0.0f,  // bottom right
@@ -101,9 +121,26 @@ void update()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		ourShader->use();
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+		trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
+		unsigned int transformLoc = glGetUniformLocation(ourShader->ID, "transform");
+		glUniformMatrix4fv(transformLoc, 1, false, glm::value_ptr(trans));
 
 		glBindVertexArray(VAO);
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		trans = glm::mat4(1.0f);
+		
+		trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
+		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+		float scaleAmount = sin(glfwGetTime());
+		trans = glm::scale(trans, glm::vec3(scaleAmount, scaleAmount, scaleAmount));
+		transformLoc = glGetUniformLocation(ourShader->ID, "transform");
+		glUniformMatrix4fv(transformLoc, 1, false, glm::value_ptr(trans));
+
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
