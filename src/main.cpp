@@ -19,29 +19,83 @@ void update();
 
 int main()
 {
-	// // this is the vector that we want to translate
-	// glm::vec4 vectest(1.0f, 0.0f, 0.0f, 1.0f);
-	// // just an identity matrix
-	// glm::mat4 ident = glm::mat4(1.0f);
-	// // this is our actual transformation matrix
-	// glm::mat4 trans = glm::translate(ident, glm::vec3(1.0f, 1.0f, 0.0f));
-	// vectest = trans * vectest;
-	// std::cout << vectest.x << vectest.y << vectest.z << std::endl;
-
-	glm::mat4 trans = glm::mat4(1.0f);
-	trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-	//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	//trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
 	initWindow(800, 600);
-	int tex_width;
-	int tex_height;
-	int nrchannels;
-
 	
-	glGenTextures(1, &texture);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glEnable(GL_DEPTH_TEST);
 
+	float cube_vertices[] = {
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	};
+
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), cube_vertices, GL_STATIC_DRAW);
+
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// texture coordinates
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	// load and create a texture
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	
+	// texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	int tex_width, tex_height, nrchannels;
+	stbi_set_flip_vertically_on_load(true);
 	unsigned char* texture_data = stbi_load("container.jpg", &tex_width, &tex_height, &nrchannels, 0);
 
 	if (texture_data) 
@@ -58,47 +112,12 @@ int main()
 	ourShader = new Shader("./shaders/basic.vs", "./shaders/basic.frag");
 	ourShader->use();
 	
+	// color and texture
 	int vertexColorLocation = glGetUniformLocation(ourShader->ID, "uniformColor");
 	glUniform4f(vertexColorLocation, 0.0f, 1.0, 0.0f, 1.0f);
 	int textureLocation = glGetUniformLocation(ourShader->ID, "texture2");
-	glUniform1i(textureLocation, 1);
-	unsigned int transformLoc = glGetUniformLocation(ourShader->ID, "transform");
-	glUniformMatrix4fv(transformLoc, 1, false, glm::value_ptr(trans));
+	glUniform1i(textureLocation, 0);
 
-	float vertices[] = {
-		// positions         // colors
-		0.5f , -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 0.0f,  // bottom right
-		-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,  // bottom left
-		-0.5f, 0.5f , 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f,  // top left
-		0.5f , 0.5f , 0.0f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f  // top right
-	};
-
-	unsigned int indices[] = {
-		0, 1, 2,
-		0, 2, 3
-	};
-
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	
-
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// color attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	// texture coordinates
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
 
 	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
 	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
@@ -118,29 +137,26 @@ int main()
 void update()
 {
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
 
 		ourShader->use();
-		glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-		trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
-		unsigned int transformLoc = glGetUniformLocation(ourShader->ID, "transform");
-		glUniformMatrix4fv(transformLoc, 1, false, glm::value_ptr(trans));
+
+		// mvp matrix
+		glm::mat4 model_mat = glm::mat4(1.0f);
+		glm::mat4 view_mat = glm::mat4(1.0f);
+		glm::mat4 projection_mat = glm::mat4(1.0f);
+		
+		model_mat = glm::rotate(model_mat, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));		
+		view_mat = glm::translate(view_mat, glm::vec3(0.0f, 0.0f, -3.0f));
+		projection_mat = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+		glm::mat4 mvp_mat = projection_mat * view_mat * model_mat;
+		int mvpLoc = glGetUniformLocation(ourShader->ID, "mvp_mat");
+		glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp_mat));
 
 		glBindVertexArray(VAO);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-		trans = glm::mat4(1.0f);
-		
-		trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
-		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-		float scaleAmount = sin(glfwGetTime());
-		trans = glm::scale(trans, glm::vec3(scaleAmount, scaleAmount, scaleAmount));
-		transformLoc = glGetUniformLocation(ourShader->ID, "transform");
-		glUniformMatrix4fv(transformLoc, 1, false, glm::value_ptr(trans));
-
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
