@@ -14,13 +14,26 @@ unsigned int VAO;
 unsigned int VBO;
 unsigned int EBO;
 unsigned int texture;
+glm::vec3 cubePositions[] = {
+		glm::vec3( 0.0f,  0.0f,  0.0f),
+		glm::vec3( 2.0f,  5.0f, -15.0f), 
+		glm::vec3(-1.5f, -2.2f, -2.5f),  
+  		glm::vec3(-3.8f, -2.0f, -12.3f),  
+  		glm::vec3( 2.4f, -0.4f, -3.5f),  
+  		glm::vec3(-1.7f,  3.0f, -7.5f),  
+  		glm::vec3( 1.3f, -2.0f, -2.5f),  
+  		glm::vec3( 1.5f,  2.0f, -2.5f), 
+  		glm::vec3( 1.5f,  0.2f, -1.5f), 
+  		glm::vec3(-1.3f,  1.0f, -1.5f)  
+	};
+
+glm::vec3 randomAxisRotations[10];
 
 void update();
 
 int main()
 {
 	initWindow(800, 600);
-	
 	glEnable(GL_DEPTH_TEST);
 
 	float cube_vertices[] = {
@@ -67,6 +80,12 @@ int main()
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
+	for(unsigned int i = 0; i < 10; ++i)
+	{
+		randomAxisRotations[i].x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+		randomAxisRotations[i].y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+		randomAxisRotations[i].z = 1.0f;
+	}
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -145,18 +164,22 @@ void update()
 		ourShader->use();
 
 		// mvp matrix
-		glm::mat4 model_mat = glm::mat4(1.0f);
 		glm::mat4 view_mat = glm::mat4(1.0f);
 		glm::mat4 projection_mat = glm::mat4(1.0f);
 		
-		model_mat = glm::rotate(model_mat, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));		
-		view_mat = glm::translate(view_mat, glm::vec3(0.0f, 0.0f, -3.0f));
+		view_mat = glm::translate(view_mat, glm::vec3(0.0f, 0.0f, -5.0f));
 		projection_mat = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-		glm::mat4 mvp_mat = projection_mat * view_mat * model_mat;
-		int mvpLoc = glGetUniformLocation(ourShader->ID, "mvp_mat");
-		glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp_mat));
+		
 
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		for(unsigned int i = 0; i < 10; ++i)
+		{
+			glm::mat4 model_mat = glm::mat4(1.0f);
+			model_mat = glm::translate(model_mat, cubePositions[i]);
+			model_mat = glm::rotate(model_mat, (float)glfwGetTime(), randomAxisRotations[i]);		
+			glm::mat4 mvp_mat = projection_mat * view_mat * model_mat;
+			int mvpLoc = glGetUniformLocation(ourShader->ID, "mvp_mat");
+			glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp_mat));
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 }
