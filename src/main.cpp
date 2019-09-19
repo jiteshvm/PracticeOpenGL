@@ -1,4 +1,7 @@
-#include "windowhandler.h"
+#include <stdlib.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include "shader.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -9,16 +12,30 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
+#include "cube.h"
+
 using namespace glm;
 using namespace std;
 
-Shader* ourShader;
-unsigned int VAO;
-unsigned int VBO;
-unsigned int EBO;
-unsigned int texture;
+const int window_width = 800;
+const int window_height = 600;
+GLFWwindow* window;
+Cube* cubes[10];
 
-vec3 cubePositions[] = {
+void Init();
+void UpdateLoop();
+void InitDrawing();
+void UpdateDrawing();
+void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
+void ProcessInput(GLFWwindow *window);
+void Cleanup();
+
+void InitDrawing()
+{
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_DEPTH_TEST);
+	
+	vec3 cubePositions[] = {
 		vec3( 0.0f,  0.0f,  0.0f),
 		vec3( 2.0f,  5.0f, -15.0f), 
 		vec3(-1.5f, -2.2f, -2.5f),  
@@ -31,159 +48,96 @@ vec3 cubePositions[] = {
   		vec3(-1.3f,  1.0f, -1.5f)  
 	};
 
-vec3 randomAxisRotations[10];
+	for(int i = 0; i < 10; ++i)
+	{
+		cubes[i] = new Cube("./shaders/basic.vs", "./shaders/basic.frag", "container.jpg", cubePositions[i]);
+	}
+} // InitDrawing()
 
-void update();
+void UpdateDrawing()
+{
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	for(int i = 0; i < 10; ++i)
+	{
+		cubes[i]->Draw(glfwGetTime());
+	}
+} // UpdateDrawning
 
 int main()
 {
-	initWindow(800, 600);
-	glEnable(GL_DEPTH_TEST);
+	Init();
+	InitDrawing();
+	UpdateLoop();
+	Cleanup();
 
-	float cube_vertices[] = {
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-	};
-
-	for(unsigned int i = 0; i < 10; ++i)
-	{
-		randomAxisRotations[i].x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-		randomAxisRotations[i].y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-		randomAxisRotations[i].z = 1.0f;
-	}
-
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), cube_vertices, GL_STATIC_DRAW);
-
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// texture coordinates
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	// load and create a texture
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	
-	// texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	int tex_width, tex_height, nrchannels;
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char* texture_data = stbi_load("container.jpg", &tex_width, &tex_height, &nrchannels, 0);
-
-	if (texture_data) 
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture_data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else 
-	{
-		cout << "Failed to load texture" << endl;
-	}
-	stbi_image_free(texture_data);
-
-	ourShader = new Shader("./shaders/basic.vs", "./shaders/basic.frag");
-	ourShader->use();
-	
-	// color and texture
-	int vertexColorLocation = glGetUniformLocation(ourShader->ID, "uniformColor");
-	glUniform4f(vertexColorLocation, 0.0f, 1.0, 0.0f, 1.0f);
-	int textureLocation = glGetUniformLocation(ourShader->ID, "texture2");
-	glUniform1i(textureLocation, 0);
-
-
-	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-	glBindVertexArray(0);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	updateWindow(update);
-
-	terminateWindow();
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-	delete ourShader;
-	
 	return 0;
-}
+} // main
 
-void update()
+void Init()
 {
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture);
+#ifdef __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+    //WindowTest = (WindowInfo*) malloc(sizeof(WindowTest));
+	window = glfwCreateWindow(window_width, window_height, "LearnOpenGL", NULL, NULL);
+	if (window == NULL)
+	{
+		//std::cout << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+		return;
+	}
+	glfwMakeContextCurrent(window);
+	glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 
-		ourShader->use();
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		//std::cout << "Failed to initialize GLAD" << std::endl;
+        glfwTerminate();
+		return;
+	}
+	const GLubyte* renderer = glGetString(GL_RENDERER);
+	const GLubyte* version = glGetString(GL_VERSION);
+	cout << "Renderer : " << renderer << endl;
+	cout << "OpenGL version : " << version << endl;    
+} // Init
 
-		// mvp matrix
-		mat4 view_mat = mat4(1.0f);
-		mat4 projection_mat = mat4(1.0f);
-		
-		view_mat = translate(view_mat, vec3(0.0f, 0.0f, -5.0f));
-		projection_mat = perspective(radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-		
-
-		glBindVertexArray(VAO);
-		for(unsigned int i = 0; i < 10; ++i)
-		{
-			mat4 model_mat = mat4(1.0f);
-			model_mat = translate(model_mat, cubePositions[i]);
-			model_mat = rotate(model_mat, (float)glfwGetTime(), randomAxisRotations[i]);		
-			mat4 mvp_mat = projection_mat * view_mat * model_mat;
-			int mvpLoc = glGetUniformLocation(ourShader->ID, "mvp_mat");
-			glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, value_ptr(mvp_mat));
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+void ProcessInput(GLFWwindow *window)
+{
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
 }
+
+void UpdateLoop()
+{
+	while (!glfwWindowShouldClose(window))
+	{
+		ProcessInput(window);
+        UpdateDrawing();
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+} // UpdateLoop
+
+void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
+{
+	// make sure the viewport matches the new window dimensions; note that width and 
+	// height will be significantly larger than specified on retina displays.
+	glViewport(0, 0, width, height);
+} // FramebufferSizeCallback
+
+void Cleanup()
+{
+	glfwTerminate();
+	for(int i = 0; i < 10; ++i)
+	{
+		cubes[i]->Cleanup();
+		delete cubes[i];
+	}
+	//delete cube1;
+} // Cleanup
