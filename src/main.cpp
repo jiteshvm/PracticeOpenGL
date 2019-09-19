@@ -9,25 +9,29 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
+using namespace glm;
+using namespace std;
+
 Shader* ourShader;
 unsigned int VAO;
 unsigned int VBO;
 unsigned int EBO;
 unsigned int texture;
-glm::vec3 cubePositions[] = {
-		glm::vec3( 0.0f,  0.0f,  0.0f),
-		glm::vec3( 2.0f,  5.0f, -15.0f), 
-		glm::vec3(-1.5f, -2.2f, -2.5f),  
-  		glm::vec3(-3.8f, -2.0f, -12.3f),  
-  		glm::vec3( 2.4f, -0.4f, -3.5f),  
-  		glm::vec3(-1.7f,  3.0f, -7.5f),  
-  		glm::vec3( 1.3f, -2.0f, -2.5f),  
-  		glm::vec3( 1.5f,  2.0f, -2.5f), 
-  		glm::vec3( 1.5f,  0.2f, -1.5f), 
-  		glm::vec3(-1.3f,  1.0f, -1.5f)  
+
+vec3 cubePositions[] = {
+		vec3( 0.0f,  0.0f,  0.0f),
+		vec3( 2.0f,  5.0f, -15.0f), 
+		vec3(-1.5f, -2.2f, -2.5f),  
+  		vec3(-3.8f, -2.0f, -12.3f),  
+  		vec3( 2.4f, -0.4f, -3.5f),  
+  		vec3(-1.7f,  3.0f, -7.5f),  
+  		vec3( 1.3f, -2.0f, -2.5f),  
+  		vec3( 1.5f,  2.0f, -2.5f), 
+  		vec3( 1.5f,  0.2f, -1.5f), 
+  		vec3(-1.3f,  1.0f, -1.5f)  
 	};
 
-glm::vec3 randomAxisRotations[10];
+vec3 randomAxisRotations[10];
 
 void update();
 
@@ -124,7 +128,7 @@ int main()
 	}
 	else 
 	{
-		std::cout << "Failed to load texture" << std::endl;
+		cout << "Failed to load texture" << endl;
 	}
 	stbi_image_free(texture_data);
 
@@ -164,22 +168,22 @@ void update()
 		ourShader->use();
 
 		// mvp matrix
-		glm::mat4 view_mat = glm::mat4(1.0f);
-		glm::mat4 projection_mat = glm::mat4(1.0f);
+		mat4 view_mat = mat4(1.0f);
+		mat4 projection_mat = mat4(1.0f);
 		
-		view_mat = glm::translate(view_mat, glm::vec3(0.0f, 0.0f, -5.0f));
-		projection_mat = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+		view_mat = translate(view_mat, vec3(0.0f, 0.0f, -5.0f));
+		projection_mat = perspective(radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 		
 
 		glBindVertexArray(VAO);
 		for(unsigned int i = 0; i < 10; ++i)
 		{
-			glm::mat4 model_mat = glm::mat4(1.0f);
-			model_mat = glm::translate(model_mat, cubePositions[i]);
-			model_mat = glm::rotate(model_mat, (float)glfwGetTime(), randomAxisRotations[i]);		
-			glm::mat4 mvp_mat = projection_mat * view_mat * model_mat;
+			mat4 model_mat = mat4(1.0f);
+			model_mat = translate(model_mat, cubePositions[i]);
+			model_mat = rotate(model_mat, (float)glfwGetTime(), randomAxisRotations[i]);		
+			mat4 mvp_mat = projection_mat * view_mat * model_mat;
 			int mvpLoc = glGetUniformLocation(ourShader->ID, "mvp_mat");
-			glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp_mat));
+			glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, value_ptr(mvp_mat));
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 }
