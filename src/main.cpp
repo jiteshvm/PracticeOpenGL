@@ -23,6 +23,7 @@ const int window_height = 600;
 float deltaTime;
 float lastFrame;
 
+bool firstMouse = true;
 float lastX = window_width / 2.0f;
 float lastY = window_height / 2.0f;
 
@@ -111,6 +112,10 @@ void Init()
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 	glfwSetCursorPosCallback(window, MouseCallback);
+
+	// tell GLFW to capture our mouse
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		//std::cout << "Failed to initialize GLAD" << std::endl;
@@ -161,9 +166,14 @@ void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 {
+	if(firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
 	float xoffset = xpos - lastX;
 	float yoffset = lastY - ypos;
-
 	lastX = xpos;
 	lastY = ypos;
 

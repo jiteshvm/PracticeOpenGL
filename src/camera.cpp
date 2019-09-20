@@ -54,10 +54,13 @@ glm::mat4 Camera::GetViewMatrix()
 
 void Camera::updateCameraVectors()
 {
-	/*glm::vec3 front;
-	front.x =
-	front.y =
-	front.z =*/
+	glm::vec3 front;
+	float PitchRadians = glm::radians(Pitch);
+	float YawRadians = glm::radians(Yaw);
+	front.x = cos(PitchRadians) * cos(YawRadians);
+	front.y = sin(PitchRadians);
+	front.z = cos(PitchRadians) * sin(YawRadians);
+	Front = glm::normalize(front);
 	// Also re-calculate the Right and Up vector
 	Right = glm::normalize(glm::cross(Front, WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
 	Up = glm::normalize(glm::cross(Right, Front));
