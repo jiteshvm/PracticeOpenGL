@@ -1,9 +1,6 @@
 #include "cube.h"
 #include <stb/stb_image.h>
-#define GLM_FORCE_RADIANS
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+
 #include <iostream>
 
 using namespace glm;
@@ -59,7 +56,7 @@ Cube::Cube(const char* vertexPath, const char* fragmentPath, const char* texture
 
 	ourShader = new Shader(vertexPath, fragmentPath);
 	ourShader->use();
-	int textureLocation = glGetUniformLocation(ourShader->ID, "texture2");
+	int textureLocation = glGetUniformLocation(ourShader->ID, "texture1");
 	glUniform1i(textureLocation, 0);
     glBindVertexArray(0);
 
@@ -72,23 +69,22 @@ void Cube::SetRandomRotationAxis()
 	randomRotationAxis.y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	randomRotationAxis.z = 1.0f;
 }
-void Cube::Draw(float ElapsedTime)
+void Cube::Draw(float DeltaTime)
 {
+	ElapsedTime += DeltaTime;
+
     glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
     ourShader->use();
     // mvp matrix
-    mat4 view_mat = mat4(1.0f);
-	mat4 projection_mat = mat4(1.0f);
-	view_mat = translate(view_mat, vec3(0.0f, 0.0f, -5.0f));
-	projection_mat = perspective(radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+ 
 	glBindVertexArray(VAO);
-	mat4 model_mat = mat4(1.0f);
-	model_mat = translate(model_mat, position);
-	model_mat = rotate(model_mat, (float)ElapsedTime, randomRotationAxis);		
-	mat4 mvp_mat = projection_mat * view_mat * model_mat;
-    int mvpLoc = glGetUniformLocation(ourShader->ID, "mvp_mat");
-    glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, value_ptr(mvp_mat));
+	ModelMatrix = mat4(1.0f);
+	ModelMatrix = translate(ModelMatrix, position);
+	ModelMatrix = rotate(ModelMatrix, (float)ElapsedTime, randomRotationAxis);		
+	mat4 mvp = ProjectionMatrix * ViewMatrix * ModelMatrix;
+    int mvpLoc = glGetUniformLocation(ourShader->ID, "mvp");
+    glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, value_ptr(mvp));
     glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 

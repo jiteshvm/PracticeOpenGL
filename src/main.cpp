@@ -12,6 +12,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
+#include "camera.h"
 #include "cube.h"
 
 using namespace glm;
@@ -19,8 +20,15 @@ using namespace std;
 
 const int window_width = 800;
 const int window_height = 600;
+float deltaTime;
+float lastFrame;
+
+float lastX = window_width / 2.0f;
+float lastY = window_height / 2.0f;
+
 float cameraSpeed = 0.05f;
 GLFWwindow* window;
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 Cube* cubes[10];
 
 glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
@@ -30,8 +38,9 @@ glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 void Init();
 void UpdateLoop();
 void InitDrawing();
-void UpdateDrawing();
+void UpdateDrawing(float DeltaTime);
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
+void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 void ProcessInput(GLFWwindow *window);
 void Cleanup();
 
@@ -39,7 +48,6 @@ void InitDrawing()
 {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_DEPTH_TEST);
-	
 	vec3 cubePositions[] = {
 		vec3( 0.0f,  0.0f,  0.0f),
 		vec3( 2.0f,  5.0f, -15.0f), 
@@ -59,13 +67,16 @@ void InitDrawing()
 	}
 } // InitDrawing()
 
-void UpdateDrawing()
+void UpdateDrawing(float DeltaTime)
 {
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	mat4 projection = perspective(radians(45.0f), (float)window_width / (float)window_height, 0.1f, 100.0f);
 	for(int i = 0; i < 10; ++i)
 	{
-		cubes[i]->Draw(glfwGetTime());
+		cubes[i]->ProjectionMatrix = projection;
+		cubes[i]->ViewMatrix = camera.GetViewMatrix();
+		cubes[i]->Draw(DeltaTime);
 	}
 } // UpdateDrawning
 
@@ -99,7 +110,7 @@ void Init()
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
-
+	glfwSetCursorPosCallback(window, MouseCallback);
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		//std::cout << "Failed to initialize GLAD" << std::endl;
@@ -118,21 +129,24 @@ void ProcessInput(GLFWwindow *window)
 		glfwSetWindowShouldClose(window, true);
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        cameraPos += cameraSpeed * cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        cameraPos -= cameraSpeed * cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        camera.ProcessKeyboard(FORWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera.ProcessKeyboard(BACKWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera.ProcessKeyboard(LEFT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
 void UpdateLoop()
 {
 	while (!glfwWindowShouldClose(window))
 	{
+		float currentFrame = (float)glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
 		ProcessInput(window);
-        UpdateDrawing();
+        UpdateDrawing(deltaTime);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -144,6 +158,17 @@ void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
 } // FramebufferSizeCallback
+
+void MouseCallback(GLFWwindow* window, double xpos, double ypos)
+{
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos;
+
+	lastX = xpos;
+	lastY = ypos;
+
+	camera.ProcessMouseMovement(xoffset, yoffset);
+} // MouseCallback
 
 void Cleanup()
 {
