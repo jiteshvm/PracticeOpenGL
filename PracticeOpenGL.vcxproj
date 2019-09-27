@@ -140,16 +140,20 @@
     <ClCompile Include="src\cube.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\sphere.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stb\stb_image.h" />
     <ClInclude Include="src\camera.h" />
     <ClInclude Include="src\cube.h" />
     <ClInclude Include="src\shader.h" />
+    <ClInclude Include="src\sphere.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic.frag" />
     <None Include="shaders\basic.vs" />
+    <None Include="shaders\sphere.frag" />
+    <None Include="shaders\sphere.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,8 +2,10 @@
 #define CAMERA_H
 
 #include <glad/glad.h>
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 const float YAW = -90.0f;
 const float PITCH = 0.0f;

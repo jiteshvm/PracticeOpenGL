@@ -33,6 +33,9 @@
     <ClCompile Include="src\camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\sphere.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stb\stb_image.h">
@@ -47,12 +50,21 @@
     <ClInclude Include="src\camera.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\sphere.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic.frag">
       <Filter>Shaders</Filter>
     </None>
     <None Include="shaders\basic.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\sphere.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\sphere.vs">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

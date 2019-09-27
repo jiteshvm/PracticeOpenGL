@@ -14,6 +14,7 @@
 
 #include "camera.h"
 #include "cube.h"
+#include "sphere.h"
 
 using namespace glm;
 using namespace std;
@@ -31,6 +32,7 @@ float cameraSpeed = 0.05f;
 GLFWwindow* window;
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 Cube* cubes[10];
+Sphere* sphere;
 
 glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -49,6 +51,10 @@ void InitDrawing()
 {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_CULL_FACE);
+	//glFrontFace(GL_CCW);
+	//glCullFace(GL_BACK);
+
 	vec3 cubePositions[] = {
 		vec3( 0.0f,  0.0f,  0.0f),
 		vec3( 2.0f,  5.0f, -15.0f), 
@@ -62,10 +68,13 @@ void InitDrawing()
   		vec3(-1.3f,  1.0f, -1.5f)  
 	};
 
-	for(int i = 0; i < 10; ++i)
-	{
-		cubes[i] = new Cube("./shaders/basic.vs", "./shaders/basic.frag", "container.jpg", cubePositions[i]);
-	}
+	 for(int i = 0; i < 10; ++i)
+	 {
+	 	cubes[i] = new Cube("./shaders/basic.vs", "./shaders/basic.frag", "container.jpg", cubePositions[i]);
+	 }
+
+	sphere = new Sphere(1.0f);
+	//sphere->SetShaders("./shaders/basic.vs", "./shaders/basic.frag");
 } // InitDrawing()
 
 void UpdateDrawing(float DeltaTime)
@@ -73,11 +82,14 @@ void UpdateDrawing(float DeltaTime)
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	mat4 projection = perspective(radians(45.0f), (float)window_width / (float)window_height, 0.1f, 100.0f);
+	sphere->ProjectionMatrix = projection;
+	sphere->ViewMatrix = camera.GetViewMatrix();
+	sphere->Draw(DeltaTime);
 	for(int i = 0; i < 10; ++i)
 	{
 		cubes[i]->ProjectionMatrix = projection;
-		cubes[i]->ViewMatrix = camera.GetViewMatrix();
-		cubes[i]->Draw(DeltaTime);
+	 	cubes[i]->ViewMatrix = camera.GetViewMatrix();
+	 	cubes[i]->Draw(DeltaTime);
 	}
 } // UpdateDrawning
 
@@ -94,8 +106,8 @@ int main()
 void Init()
 {
     glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef __APPLE__
@@ -168,14 +180,14 @@ void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 {
 	if(firstMouse)
 	{
-		lastX = xpos;
-		lastY = ypos;
+		lastX = (float)xpos;
+		lastY = (float)ypos;
 		firstMouse = false;
 	}
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos;
-	lastX = xpos;
-	lastY = ypos;
+	float xoffset = (float)xpos - lastX;
+	float yoffset = lastY - (float)ypos;
+	lastX = (float)xpos;
+	lastY =(float)ypos;
 
 	camera.ProcessMouseMovement(xoffset, yoffset);
 } // MouseCallback
@@ -183,10 +195,11 @@ void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 void Cleanup()
 {
 	glfwTerminate();
+	sphere->Cleanup();
+	delete sphere;
 	for(int i = 0; i < 10; ++i)
 	{
 		cubes[i]->Cleanup();
 		delete cubes[i];
 	}
-	//delete cube1;
 } // Cleanup
