@@ -2,16 +2,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "shader.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
-#define GLM_FORCE_RADIANS
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <iostream>
-
+#include "shader.h"
 #include "camera.h"
 #include "cube.h"
 #include "sphere.h"
@@ -49,7 +43,7 @@ void Cleanup();
 
 void InitDrawing()
 {
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE);
 	//glFrontFace(GL_CCW);
@@ -70,11 +64,15 @@ void InitDrawing()
 
 	 for(int i = 0; i < 10; ++i)
 	 {
-	 	cubes[i] = new Cube("./shaders/basic.vs", "./shaders/basic.frag", "container.jpg", cubePositions[i]);
+	 	cubes[i] = new Cube();
+		cubes[i]->Position = cubePositions[i];
+		cubes[i]->SetShaders("./shaders/basic.vs", "./shaders/basic.frag");
+		cubes[i]->SetTexture("container.jpg");
 	 }
 
 	sphere = new Sphere(1.0f);
-	//sphere->SetShaders("./shaders/basic.vs", "./shaders/basic.frag");
+	sphere->SetShaders("./shaders/sphere.vs", "./shaders/sphere.frag");
+
 } // InitDrawing()
 
 void UpdateDrawing(float DeltaTime)
@@ -82,14 +80,15 @@ void UpdateDrawing(float DeltaTime)
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	mat4 projection = perspective(radians(45.0f), (float)window_width / (float)window_height, 0.1f, 100.0f);
+
 	sphere->ProjectionMatrix = projection;
 	sphere->ViewMatrix = camera.GetViewMatrix();
-	sphere->Draw(DeltaTime);
+	sphere->Update(DeltaTime);
 	for(int i = 0; i < 10; ++i)
 	{
 		cubes[i]->ProjectionMatrix = projection;
 	 	cubes[i]->ViewMatrix = camera.GetViewMatrix();
-	 	cubes[i]->Draw(DeltaTime);
+	 	cubes[i]->Update(DeltaTime);
 	}
 } // UpdateDrawning
 

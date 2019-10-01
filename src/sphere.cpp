@@ -55,10 +55,8 @@ Sphere::Sphere(float radius, unsigned int numSectors, unsigned int numStacks)
 	glVertexAttribPointer(2, 2, GL_FLOAT, false, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 	
-	SetShaders("./shaders/sphere.vs", "./shaders/sphere.frag");
-    shader->use();
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 
@@ -67,10 +65,10 @@ void Sphere::buildVerticesSmooth()
     const float PI = 3.1415926f;
 
     // clear memory of prev arrays
-    std::vector<float>().swap(vertices);
-    std::vector<float>().swap(normals);
-    std::vector<float>().swap(texCoords);
-    std::vector<unsigned int>().swap(indices);
+    vector<float>().swap(vertices);
+    vector<float>().swap(normals);
+    vector<float>().swap(texCoords);
+    vector<unsigned int>().swap(indices);
 
     float x, y, z, xy;                              // vertex position
     float nx, ny, nz, lengthInv = 1.0f / radius;    // normal
@@ -160,10 +158,10 @@ void Sphere::buildVerticesSmooth()
 
 void Sphere::buildInterleavedVertices()
 {
-    std::vector<float>().swap(interleavedVertices);
+    vector<float>().swap(interleavedVertices);
 
-    std::size_t i, j;
-    std::size_t count = vertices.size();
+    size_t i, j;
+    size_t count = vertices.size();
     for(i = 0, j = 0; i < count; i += 3, j += 2)
     {
         interleavedVertices.push_back(vertices[i]);
@@ -181,7 +179,7 @@ void Sphere::buildInterleavedVertices()
 
 void Sphere::printSelf() const
 {
-	std::cout << "===== Sphere =====\n"
+	cout << "===== Sphere =====\n"
 		<< "        Radius: " << radius << "\n"
 		<< "  Sector Count: " << sectorCount << "\n"
 		<< "   Stack Count: " << stackCount << "\n"
@@ -189,20 +187,16 @@ void Sphere::printSelf() const
 		<< "   Index Count: " << indices.size() << "\n"
 		<< "  Vertex Count: " << vertices.size() / 3 << "\n"
 		<< "  Normal Count: " << normals.size() / 3 << "\n"
-		<< "TexCoord Count: " << texCoords.size() / 2 << std::endl;
+		<< "TexCoord Count: " << texCoords.size() / 2 << endl;
 }
 
-void Sphere::Draw(float DeltaTime)
+void Sphere::Update(float DeltaTime)
 {
-	shader->use();
+	Super::Update(DeltaTime);
 	glBindVertexArray(VAO);
-
-	ModelMatrix = mat4(1.0f);
-	ModelMatrix = translate(ModelMatrix, position);
-	mat4 mvp = ProjectionMatrix * ViewMatrix * ModelMatrix;
-	int mvpLoc = glGetUniformLocation(shader->ID, "mvp");
-	glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, value_ptr(mvp));
-	glDrawElements(	GL_TRIANGLES, (unsigned int) indices.size(), GL_UNSIGNED_INT, 0);			   
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
+	glDrawElements(	GL_TRIANGLES, (unsigned int) indices.size(), GL_UNSIGNED_INT, 0);
 }
 
 void Sphere::Cleanup()
@@ -210,11 +204,5 @@ void Sphere::Cleanup()
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &vertex_buffer);
 	glDeleteBuffers(1, &index_buffer);
-	delete shader;
-}
-
-void Sphere::SetShaders(const char * vertexPath, const char * fragmentPath)
-{
-	shader = new Shader(vertexPath, fragmentPath);
-	shader->use();
+	Super::Cleanup();
 }

@@ -36,6 +36,9 @@
     <ClCompile Include="src\sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\gameobject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stb\stb_image.h">
@@ -51,6 +54,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\sphere.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameobject.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

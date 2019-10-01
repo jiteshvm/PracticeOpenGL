@@ -2,24 +2,17 @@
 #define CUBE_H
 
 #include "shader.h"
-#include <glad/glad.h>
-#define GLM_FORCE_RADIANS
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "gameobject.h"
 
-class Cube
+class Cube : public GameObject
 {
 public:
-	Cube(const char* vertexPath, const char* fragmentPath, const char* texturePath = nullptr, const glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f));
-    void Draw(float DeltaTime);
+	Cube();
+	void Update(float DeltaTime) override;
     void Cleanup();
-	void SetRandomRotationAxis();
-	glm::mat4 ModelMatrix = glm::mat4(1.0f);
-	glm::mat4 ViewMatrix = glm::mat4(1.0f);
-	glm::mat4 ProjectionMatrix = glm::mat4(1.0f);
+	//void SetRandomRotationAxis();
 
-private:
+protected:
 	float cube_vertices[180] = {
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 		0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -64,12 +57,9 @@ private:
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
-    Shader* ourShader;
     unsigned int VAO;
     unsigned int VBO;
-    unsigned int texture;
-    glm::vec3 position;
-    glm::vec3 randomRotationAxis;
-	float ElapsedTime;
+    //glm::vec3 randomRotationAxis;
+	//float ElapsedTime;
 };
 #endif

@@ -138,6 +138,7 @@
   <ItemGroup>
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\cube.cpp" />
+    <ClCompile Include="src\gameobject.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\sphere.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="include\stb\stb_image.h" />
     <ClInclude Include="src\camera.h" />
     <ClInclude Include="src\cube.h" />
+    <ClInclude Include="src\gameobject.h" />
     <ClInclude Include="src\shader.h" />
     <ClInclude Include="src\sphere.h" />
   </ItemGroup>
