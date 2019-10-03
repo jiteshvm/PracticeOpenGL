@@ -12,6 +12,15 @@ void GameObject::Update(float DeltaTime)
 	ModelMatrix = mat4(1.0f);
 	ModelMatrix = translate(ModelMatrix, Position);
 	//ModelMatrix = rotate(ModelMatrix, (float)ElapsedTime, randomRotationAxis);
+	int modelLoc = glGetUniformLocation(shader->ID, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(ModelMatrix));
+
+	int viewLoc = glGetUniformLocation(shader->ID, "view");
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(ViewMatrix));
+
+	int projectionLoc = glGetUniformLocation(shader->ID, "projection");
+	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, value_ptr(ProjectionMatrix));
+
 	mat4 mvp = ProjectionMatrix * ViewMatrix * ModelMatrix;
 	int mvpLoc = glGetUniformLocation(shader->ID, "mvp");
 	glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, value_ptr(mvp));

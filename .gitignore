@@ -12,3 +12,4 @@ PracticeOpenGL.out.dSYM
 PracticeOpenGL.out
 *.o
 bin/PracticeOpenGL
+.vs

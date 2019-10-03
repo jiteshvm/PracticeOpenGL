@@ -28,6 +28,8 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 Cube* cubes[10];
 Sphere* sphere;
 
+Cube* lightTestObj;
+
 glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
@@ -49,29 +51,36 @@ void InitDrawing()
 	//glFrontFace(GL_CCW);
 	//glCullFace(GL_BACK);
 
-	vec3 cubePositions[] = {
-		vec3( 0.0f,  0.0f,  0.0f),
-		vec3( 2.0f,  5.0f, -15.0f), 
-		vec3(-1.5f, -2.2f, -2.5f),  
-  		vec3(-3.8f, -2.0f, -12.3f),  
-  		vec3( 2.4f, -0.4f, -3.5f),  
-  		vec3(-1.7f,  3.0f, -7.5f),  
-  		vec3( 1.3f, -2.0f, -2.5f),  
-  		vec3( 1.5f,  2.0f, -2.5f), 
-  		vec3( 1.5f,  0.2f, -1.5f), 
-  		vec3(-1.3f,  1.0f, -1.5f)  
-	};
+	//vec3 cubePositions[] = {
+	//	vec3( 0.0f,  0.0f,  0.0f),
+	//	vec3( 2.0f,  5.0f, -15.0f), 
+	//	vec3(-1.5f, -2.2f, -2.5f),  
+ // 		vec3(-3.8f, -2.0f, -12.3f),  
+ // 		vec3( 2.4f, -0.4f, -3.5f),  
+ // 		vec3(-1.7f,  3.0f, -7.5f),  
+ // 		vec3( 1.3f, -2.0f, -2.5f),  
+ // 		vec3( 1.5f,  2.0f, -2.5f), 
+ // 		vec3( 1.5f,  0.2f, -1.5f), 
+ // 		vec3(-1.3f,  1.0f, -1.5f)  
+	//};
 
-	 for(int i = 0; i < 10; ++i)
-	 {
-	 	cubes[i] = new Cube();
-		cubes[i]->Position = cubePositions[i];
-		cubes[i]->SetShaders("./shaders/basic.vs", "./shaders/basic.frag");
-		cubes[i]->SetTexture("container.jpg");
-	 }
+	 //for(int i = 0; i < 10; ++i)
+	 //{
+	 //	cubes[i] = new Cube();
+		//cubes[i]->Position = cubePositions[i];
+		//cubes[i]->SetShaders("./shaders/basic.vert", "./shaders/basic.frag");
+		//cubes[i]->SetTexture("container.jpg");
+	 //}
 
-	sphere = new Sphere(1.0f);
-	sphere->SetShaders("./shaders/sphere.vs", "./shaders/sphere.frag");
+	lightTestObj = new Cube();
+	lightTestObj->Position = vec3(0.0f, 0.0f, -5.0f);
+	lightTestObj->SetShaders("./shaders/test_lighting.vert", "./shaders/test_lighting.frag");
+	lightTestObj->shader->setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+	lightTestObj->shader->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+	//cubes[i]->SetTexture("container.jpg");
+
+	sphere = new Sphere(0.5f);
+	sphere->SetShaders("./shaders/lamp.vert", "./shaders/lamp.frag");
 
 } // InitDrawing()
 
@@ -84,12 +93,16 @@ void UpdateDrawing(float DeltaTime)
 	sphere->ProjectionMatrix = projection;
 	sphere->ViewMatrix = camera.GetViewMatrix();
 	sphere->Update(DeltaTime);
-	for(int i = 0; i < 10; ++i)
-	{
-		cubes[i]->ProjectionMatrix = projection;
-	 	cubes[i]->ViewMatrix = camera.GetViewMatrix();
-	 	cubes[i]->Update(DeltaTime);
-	}
+
+	lightTestObj->ProjectionMatrix = projection;
+	lightTestObj->ViewMatrix = camera.GetViewMatrix();
+	lightTestObj->Update(DeltaTime);
+	//for(int i = 0; i < 10; ++i)
+	//{
+	//	cubes[i]->ProjectionMatrix = projection;
+	// 	cubes[i]->ViewMatrix = camera.GetViewMatrix();
+	// 	cubes[i]->Update(DeltaTime);
+	//}
 } // UpdateDrawning
 
 int main()
@@ -196,9 +209,10 @@ void Cleanup()
 	glfwTerminate();
 	sphere->Cleanup();
 	delete sphere;
-	for(int i = 0; i < 10; ++i)
-	{
-		cubes[i]->Cleanup();
-		delete cubes[i];
-	}
+	delete lightTestObj;
+	//for(int i = 0; i < 10; ++i)
+	//{
+	//	cubes[i]->Cleanup();
+	//	delete cubes[i];
+	//}
 } // Cleanup
