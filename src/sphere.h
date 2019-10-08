@@ -31,9 +31,9 @@ private:
 	GLuint VAO;
 	GLuint vertex_buffer;
 	GLuint index_buffer;
-	GLint attribVertexPosition;
-	GLint attribVertexNormal;
-	GLint attribVertexTexCoord;
+	//GLint attribVertexPosition;
+	//GLint attribVertexNormal;
+	//GLint attribVertexTexCoord;
 
 	void buildVerticesSmooth();
 	void buildInterleavedVertices();

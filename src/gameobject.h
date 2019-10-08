@@ -13,7 +13,8 @@ using namespace glm;
 class GameObject
 {
 protected:
-	//GameObject();
+	GameObject();
+	virtual ~GameObject() = 0;
 	virtual void Update(float DeltaTime);
 	virtual void Cleanup();
 	GLuint mainTexture;
@@ -22,7 +23,7 @@ public:
 	
 	typedef GameObject Super;
 
-	Shader* shader;
+	Shader* shader = nullptr;
 	mat4 ModelMatrix = mat4(1.0f);
 	mat4 ViewMatrix = mat4(1.0f);
 	mat4 ProjectionMatrix = mat4(1.0f);

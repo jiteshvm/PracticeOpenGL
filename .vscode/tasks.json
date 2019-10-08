@@ -8,13 +8,13 @@
             "type": "shell",
             "command": "make",
             "args": [],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "group": "build",
             "presentation": {
                 "reveal": "always"
-            }
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
         },
         {
             "label": "clean",
@@ -24,7 +24,30 @@
             "group": "build",
             "presentation": {
                 "reveal": "always"
-            }
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "rebuild",
+            "type": "shell",
+            "command": "make",
+            "args": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "clean"
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ]
         }
     ]
 }

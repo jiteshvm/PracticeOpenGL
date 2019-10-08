@@ -9,7 +9,7 @@ class Cube : public GameObject
 public:
 	Cube();
 	void Update(float DeltaTime) override;
-    void Cleanup();
+    void Cleanup() override;
 	//void SetRandomRotationAxis();
 
 protected:

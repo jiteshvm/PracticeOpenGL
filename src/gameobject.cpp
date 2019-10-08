@@ -2,6 +2,15 @@
 
 #include <stb/stb_image.h>
 
+GameObject::GameObject()
+{
+	shader = nullptr;
+}
+
+GameObject::~GameObject()
+{
+	
+}
 void GameObject::Update(float DeltaTime)
 {
 	glActiveTexture(GL_TEXTURE0);
